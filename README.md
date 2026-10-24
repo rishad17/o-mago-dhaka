@@ -3,7 +3,7 @@
 *একটা রিকশা, হাজারটা বিপদ।* (One rickshaw, a thousand disasters.)
 
 A small, colourful, Flash-game-style 3D open-world game: pedal a decorated
-Bangladeshi cycle rickshaw through chaotic Dhaka streets.
+Bangladeshi rickshaw through chaotic Dhaka streets.
 
 Godot 4.4 · GDScript · Compatibility (OpenGL 3.3) renderer · Windows PC.
 
