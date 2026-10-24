@@ -1,0 +1,7 @@
+# Godot 4 generated cache and import data
+.godot/
+*.tmp
+# Exports
+build/
+*.exe
+*.pck

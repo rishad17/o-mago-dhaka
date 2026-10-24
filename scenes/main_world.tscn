@@ -1,0 +1,133 @@
+[gd_scene load_steps=19 format=3 uid="uid://cn54kjcud6oc5"]
+
+[ext_resource type="Script" uid="uid://b8q3gkold8s17" path="res://scripts/main_world.gd" id="1_world"]
+[ext_resource type="Script" uid="uid://cm0ovnox54xkh" path="res://scripts/city_builder.gd" id="2_city"]
+[ext_resource type="PackedScene" path="res://scenes/player_rickshaw.tscn" id="3_player"]
+[ext_resource type="Script" uid="uid://sgexmpi77oo4" path="res://scripts/camera_controller.gd" id="4_camera"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="6_pause"]
+[ext_resource type="Script" path="res://scripts/destination_manager.gd" id="7_dest"]
+[ext_resource type="Script" path="res://scripts/traffic_controller.gd" id="8_traffic"]
+[ext_resource type="Script" path="res://scripts/pedestrian_manager.gd" id="9_peds"]
+[ext_resource type="Script" path="res://scripts/passenger_manager.gd" id="10_passengers"]
+[ext_resource type="Script" path="res://scripts/collision_manager.gd" id="11_collisions"]
+[ext_resource type="Script" path="res://scripts/breakable_manager.gd" id="12_breakables"]
+[ext_resource type="Script" path="res://scripts/mugging_manager.gd" id="13_muggers"]
+[ext_resource type="Script" path="res://scripts/day_night.gd" id="14_daynight"]
+[ext_resource type="Script" path="res://scripts/mob_manager.gd" id="15_mob"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.3, 0.55, 0.88, 1)
+sky_horizon_color = Color(0.86, 0.84, 0.76, 1)
+ground_bottom_color = Color(0.32, 0.3, 0.27, 1)
+ground_horizon_color = Color(0.86, 0.84, 0.76, 1)
+
+[sub_resource type="Sky" id="Sky_main"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_main")
+ambient_light_source = 3
+ambient_light_color = Color(0.85, 0.85, 0.9, 1)
+ambient_light_sky_contribution = 0.7
+ambient_light_energy = 0.9
+fog_enabled = true
+fog_light_color = Color(0.85, 0.83, 0.75, 1)
+fog_density = 0.008
+fog_sky_affect = 0.4
+
+[node name="MainWorld" type="Node3D"]
+script = ExtResource("1_world")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8192, -0.4394, 0.3687, 0, 0.6428, 0.766, -0.5736, -0.6275, 0.5266, 0, 30, 0)
+light_color = Color(1, 0.96, 0.88, 1)
+light_energy = 1.1
+shadow_enabled = true
+directional_shadow_mode = 0
+directional_shadow_max_distance = 45.0
+
+[node name="City" type="Node3D" parent="."]
+script = ExtResource("2_city")
+
+[node name="DestinationManager" type="Node3D" parent="."]
+script = ExtResource("7_dest")
+
+[node name="PlayerRickshaw" parent="." instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.05, 42)
+
+[node name="ChaseCamera" type="Camera3D" parent="."]
+current = true
+near = 0.2
+far = 320.0
+script = ExtResource("4_camera")
+target_path = NodePath("../PlayerRickshaw")
+
+[node name="TrafficController" type="Node3D" parent="."]
+script = ExtResource("8_traffic")
+player_path = NodePath("../PlayerRickshaw")
+camera_path = NodePath("../ChaseCamera")
+pedestrians_path = NodePath("../PedestrianManager")
+
+[node name="PedestrianManager" type="Node3D" parent="."]
+script = ExtResource("9_peds")
+player_path = NodePath("../PlayerRickshaw")
+camera_path = NodePath("../ChaseCamera")
+traffic_path = NodePath("../TrafficController")
+
+[node name="HUD" parent="." instance=ExtResource("5_hud")]
+player_path = NodePath("../PlayerRickshaw")
+passengers_path = NodePath("../PassengerManager")
+pedestrians_path = NodePath("../PedestrianManager")
+
+[node name="PassengerManager" type="Node" parent="."]
+script = ExtResource("10_passengers")
+player_path = NodePath("../PlayerRickshaw")
+camera_path = NodePath("../ChaseCamera")
+hud_path = NodePath("../HUD")
+destinations_path = NodePath("../DestinationManager")
+pedestrians_path = NodePath("../PedestrianManager")
+
+[node name="CollisionManager" type="Node3D" parent="."]
+script = ExtResource("11_collisions")
+player_path = NodePath("../PlayerRickshaw")
+camera_path = NodePath("../ChaseCamera")
+hud_path = NodePath("../HUD")
+pedestrians_path = NodePath("../PedestrianManager")
+passengers_path = NodePath("../PassengerManager")
+
+[node name="BreakableManager" type="Node3D" parent="."]
+script = ExtResource("12_breakables")
+player_path = NodePath("../PlayerRickshaw")
+city_path = NodePath("../City")
+collisions_path = NodePath("../CollisionManager")
+camera_path = NodePath("../ChaseCamera")
+
+[node name="MuggingManager" type="Node3D" parent="."]
+script = ExtResource("13_muggers")
+player_path = NodePath("../PlayerRickshaw")
+pedestrians_path = NodePath("../PedestrianManager")
+passengers_path = NodePath("../PassengerManager")
+collisions_path = NodePath("../CollisionManager")
+camera_path = NodePath("../ChaseCamera")
+
+[node name="MobManager" type="Node3D" parent="."]
+script = ExtResource("15_mob")
+player_path = NodePath("../PlayerRickshaw")
+pedestrians_path = NodePath("../PedestrianManager")
+passengers_path = NodePath("../PassengerManager")
+collisions_path = NodePath("../CollisionManager")
+camera_path = NodePath("../ChaseCamera")
+
+[node name="DayNight" type="Node" parent="."]
+script = ExtResource("14_daynight")
+sun_path = NodePath("../Sun")
+environment_path = NodePath("../WorldEnvironment")
+player_path = NodePath("../PlayerRickshaw")
+hud_path = NodePath("../HUD")
+
+[node name="PauseMenu" parent="." instance=ExtResource("6_pause")]
